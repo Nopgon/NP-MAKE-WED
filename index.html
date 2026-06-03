@@ -48,6 +48,10 @@
             font-family: 'Inter', 'Noto Sans KR', sans-serif;
             background-color: #020617;
             overflow-x: hidden;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
         /* Custom scrollbar */
         ::-webkit-scrollbar {
@@ -79,8 +83,12 @@
             body {
                 background: white !important;
                 color: black !important;
+                -webkit-user-select: auto !important;
+                -moz-user-select: auto !important;
+                -ms-user-select: auto !important;
+                user-select: auto !important;
             }
-            header, footer, button, .no-print {
+            header, footer, button, .no-print, #historySection {
                 display: none !important;
             }
             #proposalSection {
@@ -120,7 +128,8 @@
                 </div>
                 <nav class="hidden md:flex items-center gap-8">
                     <a href="#features" class="text-sm font-medium text-slate-400 hover:text-white transition-colors">주요 특징</a>
-                    <a href="#proposalSection" class="text-sm font-medium text-slate-400 hover:text-white transition-colors">나의 기획서</a>
+                    <a href="#historySection" class="text-sm font-medium text-slate-400 hover:text-white transition-colors">나의 보관함</a>
+                    <a href="#proposalSection" class="text-sm font-medium text-slate-400 hover:text-white transition-colors">기획서 보기</a>
                 </nav>
                 <div>
                     <button onclick="openModal()" class="relative inline-flex items-center justify-center p-0.5 mb-2 mr-2 overflow-hidden text-sm font-medium text-white rounded-xl group bg-gradient-to-br from-brand-600 to-pink-500 hover:text-white focus:ring-4 focus:outline-none focus:ring-brand-800 transition-all duration-300">
@@ -159,6 +168,20 @@
                     <i class="fa-solid fa-file-signature"></i>
                     기획 설문 시작하기
                 </button>
+            </div>
+        </section>
+
+        <!-- My Submission History Archive Container -->
+        <section id="historySection" class="hidden max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 no-print mb-8">
+            <div class="bg-slate-900/40 border border-slate-800/80 p-6 rounded-3xl backdrop-blur-md">
+                <h3 class="text-lg font-bold text-white mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-folder-open text-brand-400"></i>
+                    나의 기획서 보관함
+                </h3>
+                <p class="text-xs text-slate-400 mb-6">제출 이력을 안전하게 보존하며, 클릭 시 하단 제안서를 즉각 복원하여 다시 검토할 수 있습니다.</p>
+                <div id="historyListContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    <!-- Dynamic history card elements will go here -->
+                </div>
             </div>
         </section>
 
@@ -225,6 +248,10 @@
                                     <span id="infoWebName" class="font-bold text-white">-</span>
                                 </div>
                                 <div class="space-y-1">
+                                    <span class="block text-slate-500 text-xs">대표자명</span>
+                                    <span id="infoRepresentative" class="font-bold text-white">-</span>
+                                </div>
+                                <div class="space-y-1 mt-2">
                                     <span class="block text-slate-500 text-xs">연락처 (휴대폰)</span>
                                     <span id="infoPhone" class="font-bold text-white">-</span>
                                 </div>
@@ -232,7 +259,7 @@
                                     <span class="block text-slate-500 text-xs">예상 책정 예산 범위</span>
                                     <span id="infoBudget" class="font-bold text-emerald-400">-</span>
                                 </div>
-                                <div class="space-y-1 mt-2">
+                                <div class="space-y-1 mt-2 sm:col-span-2">
                                     <span class="block text-slate-500 text-xs">메일 수신 타겟 주소</span>
                                     <span class="font-mono text-slate-300 font-semibold text-xs">jtiooiu1211@naver.com</span>
                                 </div>
@@ -310,7 +337,7 @@
         </section>
     </main>
 
-    <!-- FULL INTERACTIVE SURVEY MODAL (ALWAYS SHOW ON FIRST LAUNCH) -->
+    <!-- FULL INTERACTIVE SURVEY MODAL -->
     <div id="surveyModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <!-- Backdrop -->
         <div class="fixed inset-0 bg-dark-950/85 backdrop-blur-md transition-opacity" onclick="closeModal()"></div>
@@ -519,7 +546,7 @@
                         </div>
                     </div>
 
-                    <!-- STEP 5: Essential Features Checklist (Map API removed as requested) -->
+                    <!-- STEP 5: Essential Features Checklist -->
                     <div id="step5" class="survey-step hidden">
                         <h4 class="text-lg sm:text-xl font-bold text-white mb-1.5">5단계. 웹사이트 탑재 권장 확장 모듈을 선택해 주세요.</h4>
                         <p class="text-xs sm:text-sm text-slate-400 mb-6">다양한 요구사항에 어울리는 필수 인터페이스(복수 선택 및 최소 1개 이상 필수)를 설정합니다.</p>
@@ -551,17 +578,26 @@
                         </div>
                     </div>
 
-                    <!-- STEP 6: Core Info Requirements (Added Description textarea & Budget constraints) -->
+                    <!-- STEP 6: Core Info Requirements -->
                     <div id="step6" class="survey-step hidden">
                         <h4 class="text-lg sm:text-xl font-bold text-white mb-1.5">6단계. 세부 상세 및 견적 발송 정보를 기입해 주세요.</h4>
                         <p class="text-xs sm:text-sm text-slate-400 mb-4">완성된 전체 기획서 리포트 및 분석 상세 요약본은 즉시 아래 계정으로 발송 조치됩니다.</p>
                         
                         <div class="space-y-4">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-400 uppercase mb-2">원하시는 웹사이트 이름(또는 가칭 상호명)</label>
-                                <div class="relative">
-                                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500"><i class="fa-solid fa-cube"></i></span>
-                                    <input type="text" id="inputWebName" oninput="validateStep6()" placeholder="예: NP-MAKE STUDIO" class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-800 bg-slate-950 text-white placeholder-slate-600 focus:outline-none focus:border-brand-500 text-sm">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 uppercase mb-2">원하시는 웹사이트 이름(또는 가칭 상호명)</label>
+                                    <div class="relative">
+                                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500"><i class="fa-solid fa-cube"></i></span>
+                                        <input type="text" id="inputWebName" oninput="validateStep6()" placeholder="예: NP-MAKE STUDIO" class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-800 bg-slate-950 text-white placeholder-slate-600 focus:outline-none focus:border-brand-500 text-sm">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 uppercase mb-2">대표자명</label>
+                                    <div class="relative">
+                                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500"><i class="fa-solid fa-user"></i></span>
+                                        <input type="text" id="inputRepresentative" oninput="validateStep6()" placeholder="예: 홍길동" class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-800 bg-slate-950 text-white placeholder-slate-600 focus:outline-none focus:border-brand-500 text-sm">
+                                    </div>
                                 </div>
                             </div>
 
@@ -652,7 +688,7 @@
         <button onclick="closeToast()" class="text-slate-500 hover:text-slate-300"><i class="fa-solid fa-xmark"></i></button>
     </div>
 
-    <!-- Core Features Section (For visual enrichment) -->
+    <!-- Core Features Section -->
     <section id="features" class="py-16 border-t border-slate-900 bg-slate-950/50 no-print">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -699,8 +735,181 @@
         </div>
     </footer>
 
+    <!-- Firebase core JavaScript Module SDK Integration (Strict Rules compliant) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Environment properties
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'np-make-wed-app';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "mock-api-key",
+            authDomain: "mock-auth-domain",
+            projectId: "mock-project-id",
+            storageBucket: "mock-storage-bucket",
+            messagingSenderId: "mock-messaging-sender-id",
+            appId: "mock-app-id"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        let userId = null;
+        let myProposalsList = [];
+
+        // Initialize Security authentication first
+        async function runAuthenticationFlow() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (err) {
+                console.error("Firebase auth flow error:", err);
+            }
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                userId = user.uid;
+                subscribeToProposals();
+            }
+        });
+
+        runAuthenticationFlow();
+
+        // Load History real-time securely
+        function subscribeToProposals() {
+            if (!userId) return;
+            // RULE 1 - Strict Path used
+            const proposalsCol = collection(db, 'artifacts', appId, 'users', userId, 'proposals');
+            
+            onSnapshot(proposalsCol, (snapshot) => {
+                myProposalsList = [];
+                snapshot.forEach(doc => {
+                    myProposalsList.push({ id: doc.id, ...doc.data() });
+                });
+                
+                // Sort by date inside memory to comply with Rule 2 (No Complex queries)
+                myProposalsList.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                
+                renderHistoryBoard();
+            }, (error) => {
+                console.error("Firestore loading failure:", error);
+            });
+        }
+
+        // Render submitted elements list
+        function renderHistoryBoard() {
+            const container = document.getElementById('historyListContainer');
+            const historySection = document.getElementById('historySection');
+            
+            if (myProposalsList.length === 0) {
+                historySection.classList.add('hidden');
+                return;
+            }
+            
+            historySection.classList.remove('hidden');
+            container.innerHTML = '';
+            
+            myProposalsList.forEach(item => {
+                let formatTxt = '';
+                switch(item.format) {
+                    case 'landing': formatTxt = '랜딩 페이지'; break;
+                    case 'corporate': formatTxt = '기업 소개 사이트'; break;
+                    case 'ai-multipage': formatTxt = 'AI 다중페이지'; break;
+                    case 'portfolio': formatTxt = '포트폴리오'; break;
+                    case 'community': formatTxt = '커뮤니티'; break;
+                    case 'blog': formatTxt = '블로그'; break;
+                }
+                
+                const card = document.createElement('div');
+                card.className = "p-4 rounded-2xl bg-slate-950/80 border border-slate-800/80 hover:border-brand-500/50 cursor-pointer transition-all hover:scale-[1.02]";
+                card.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-[10px] font-bold text-brand-400 font-mono">SUBMITTED RECORD</span>
+                        <span class="text-[9px] text-slate-500 font-mono">${new Date(item.createdAt).toLocaleDateString()}</span>
+                    </div>
+                    <h4 class="text-sm font-extrabold text-white truncate">${item.webName}</h4>
+                    <p class="text-xs text-slate-400 mt-1 truncate">대표자: ${item.representative} / 예산: ${Number(item.budget).toLocaleString()}원</p>
+                    <div class="mt-3 flex items-center gap-1.5">
+                        <span class="px-2 py-0.5 rounded-full bg-slate-800 text-[10px] text-slate-300 font-bold">${formatTxt}</span>
+                        <span class="px-2 py-0.5 rounded-full bg-indigo-500/10 text-[10px] text-indigo-300 font-semibold truncate max-w-[120px]">${item.phone}</span>
+                    </div>
+                `;
+                
+                card.onclick = () => {
+                    restoreProposalData(item);
+                };
+                container.appendChild(card);
+            });
+        }
+
+        // Restore chosen past proposal
+        function restoreProposalData(data) {
+            answers.persona = data.persona;
+            answers.format = data.format;
+            answers.usage = data.usage;
+            answers.style = data.style;
+            answers.features = data.features;
+            answers.webName = data.webName;
+            answers.representative = data.representative;
+            answers.phone = data.phone;
+            answers.budget = data.budget;
+            answers.desc = data.desc;
+            
+            generateProposalReport();
+        }
+
+        // Save submitted proposal to database
+        async function saveProposalToDatabase() {
+            if (!userId) return;
+            try {
+                const proposalsCol = collection(db, 'artifacts', appId, 'users', userId, 'proposals');
+                await addDoc(proposalsCol, {
+                    persona: answers.persona,
+                    format: answers.format,
+                    usage: answers.usage,
+                    style: answers.style,
+                    features: answers.features,
+                    webName: answers.webName,
+                    representative: answers.representative,
+                    phone: answers.phone,
+                    budget: answers.budget,
+                    desc: answers.desc,
+                    createdAt: new Date().toISOString()
+                });
+            } catch (err) {
+                console.error("Failed to commit submission to Firestore:", err);
+            }
+        }
+
+        // Expose functions to global scope
+        window.saveProposalToDatabase = saveProposalToDatabase;
+    </script>
+
     <script>
-        // Survey State Variables
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('selectstart', e => e.preventDefault());
+        document.addEventListener('dragstart', e => e.preventDefault());
+        document.addEventListener('keydown', e => {
+            if (e.key === 'F12') {
+                e.preventDefault();
+            }
+            if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) {
+                e.preventDefault();
+            }
+            if (e.ctrlKey && e.key === 'u') {
+                e.preventDefault();
+            }
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+            }
+        });
+
         let currentStep = 1;
         const totalSteps = 6;
         const answers = {
@@ -710,12 +919,12 @@
             style: '',
             features: [],
             webName: '',
+            representative: '',
             phone: '',
             budget: '',
             desc: ''
         };
 
-        // DOM Element Cache
         const modal = document.getElementById('surveyModal');
         const prevBtn = document.getElementById('prevBtn');
         const nextBtn = document.getElementById('nextBtn');
@@ -724,8 +933,7 @@
         const surveyLoader = document.getElementById('surveyLoader');
         const proposalSection = document.getElementById('proposalSection');
 
-        // FORCE MODAL TO OPEN ON LOAD
-        window.addEventListener('DOMContentLoaded', (event) => {
+        window.addEventListener('DOMContentLoaded', () => {
             openModal();
         });
 
@@ -737,12 +945,13 @@
             answers.style = '';
             answers.features = [];
             answers.webName = '';
+            answers.representative = '';
             answers.phone = '';
             answers.budget = '';
             answers.desc = '';
             
-            // Reset input values inside modal
             document.getElementById('inputWebName').value = '';
+            document.getElementById('inputRepresentative').value = '';
             document.getElementById('inputPhone').value = '';
             document.getElementById('inputBudget').value = '';
             document.getElementById('inputDesc').value = '';
@@ -767,7 +976,6 @@
             document.body.style.overflow = '';
         }
 
-        // STEP VALIDATIONS
         function validateStep1() {
             const val = document.querySelector('input[name="persona"]:checked');
             if(val) {
@@ -836,6 +1044,7 @@
 
         function validateStep6() {
             const webNameVal = document.getElementById('inputWebName').value.trim();
+            const representativeVal = document.getElementById('inputRepresentative').value.trim();
             const phoneVal = document.getElementById('inputPhone').value.trim();
             const budgetInput = document.getElementById('inputBudget');
             const budgetVal = parseInt(budgetInput.value, 10) || 0;
@@ -843,11 +1052,11 @@
             const warning = document.getElementById('budgetWarning');
 
             answers.webName = webNameVal;
+            answers.representative = representativeVal;
             answers.phone = phoneVal;
             answers.budget = budgetVal;
             answers.desc = descVal;
 
-            // Budget validation: 10,000 ~ 100,000 KRW
             const isBudgetValid = (budgetVal >= 10000 && budgetVal <= 100000);
             
             if (budgetInput.value !== "" && !isBudgetValid) {
@@ -856,14 +1065,13 @@
                 warning.classList.add('hidden');
             }
 
-            if (webNameVal !== '' && phoneVal !== '' && isBudgetValid && descVal !== '') {
+            if (webNameVal !== '' && representativeVal !== '' && phoneVal !== '' && isBudgetValid && descVal !== '') {
                 nextBtn.removeAttribute('disabled');
             } else {
                 nextBtn.setAttribute('disabled', 'true');
             }
         }
 
-        // Selection Styles Apply Helper
         function applySelectionStyle(name) {
             const labels = document.querySelectorAll(`input[name="${name}"]`);
             labels.forEach(radio => {
@@ -878,7 +1086,6 @@
             });
         }
 
-        // STEP VISIBILITY & FLOW ENGINE
         function updateStepVisibility() {
             const steps = document.querySelectorAll('.survey-step');
             steps.forEach(s => s.classList.add('hidden'));
@@ -888,19 +1095,16 @@
                 currentStepEl.classList.remove('hidden');
             }
 
-            // Update Progress Bar
             const percent = (currentStep / totalSteps) * 100;
             progressBar.style.width = `${percent}%`;
             stepProgressText.innerText = `${currentStep}/${totalSteps}`;
 
-            // Handle Previous Button State
             if (currentStep === 1) {
                 prevBtn.setAttribute('disabled', 'true');
             } else {
                 prevBtn.removeAttribute('disabled');
             }
 
-            // Handle Next / Submit button text
             nextBtn.innerHTML = (currentStep === totalSteps) ? '기획서 생성 및 전송 <i class="fa-solid fa-paper-plane ml-1"></i>' : '다음단계<i class="fa-solid fa-arrow-right ml-1"></i>';
 
             let stepValid = false;
@@ -909,7 +1113,7 @@
             if (currentStep === 3 && answers.usage) stepValid = true;
             if (currentStep === 4 && answers.style) stepValid = true;
             if (currentStep === 5 && answers.features.length > 0) stepValid = true;
-            if (currentStep === 6 && answers.webName && answers.phone && (answers.budget >= 10000 && answers.budget <= 100000) && answers.desc) stepValid = true;
+            if (currentStep === 6 && answers.webName && answers.representative && answers.phone && (answers.budget >= 10000 && answers.budget <= 100000) && answers.desc) stepValid = true;
 
             if (stepValid) {
                 nextBtn.removeAttribute('disabled');
@@ -935,7 +1139,6 @@
             }
         }
 
-        // ANALYZE SPECS AND TRANSMIT DATA VIA EMAILJS
         function runAiAnalyzerAndSendEmail() {
             surveyLoader.classList.remove('hidden');
             document.getElementById('loaderTitle').innerText = "AI 기획 매칭 & 메일 전송";
@@ -955,14 +1158,17 @@
             const progressInterval = setInterval(() => {
                 progress += Math.floor(Math.random() * 8) + 4;
                 if (progress >= 85 && statusIdx < 5) {
-                    // Stay at 85% until emailjs completes
                     progress = 85;
                 }
                 if (progress >= 100) {
                     progress = 100;
                     clearInterval(progressInterval);
-                    setTimeout(() => {
+                    setTimeout(async () => {
                         surveyLoader.classList.add('hidden');
+                        // Commit to Firestore History
+                        if (window.saveProposalToDatabase) {
+                            await window.saveProposalToDatabase();
+                        }
                         generateProposalReport();
                     }, 600);
                 }
@@ -976,7 +1182,6 @@
                 }
             }, 150);
 
-            // Trigger EmailJS Email Transmit
             const personaName = answers.persona === 'company' ? '기업/스타트업 비즈니스' : '프리랜서 및 퍼스널 브랜딩';
             
             let formatKorean = '';
@@ -1012,12 +1217,11 @@
                 return f;
             }).join(', ');
 
-            // Formatting budget for email output
             const formattedBudget = Number(answers.budget).toLocaleString() + "원";
 
-            // Construct Template Parameters to send EmailJS
             const templateParams = {
                 to_email: 'jtiooiu1211@naver.com',
+                name: answers.representative,
                 website_name: answers.webName,
                 expected_budget: formattedBudget,
                 phone_number: answers.phone,
@@ -1026,7 +1230,7 @@
                 website_format: formatKorean,
                 design_style: styleKorean,
                 selected_features: featuresKorean,
-                raw_proposal_summary: `상세 기획서 요약 내용입니다.\n상호: ${answers.webName}\n연락처: ${answers.phone}\n예산: ${formattedBudget}\n선택 포맷: ${formatKorean}\n스타일 무드: ${styleKorean}\n필수 장착 기능: ${featuresKorean}\n\n■ 고객 작성 웹사이트 설명:\n${answers.desc}`
+                raw_proposal_summary: `상세 기획서 요약 내용입니다.\n상호: ${answers.webName}\n대표자명: ${answers.representative}\n연락처: ${answers.phone}\n예산: ${formattedBudget}\n선택 포맷: ${formatKorean}\n스타일 무드: ${styleKorean}\n필수 장착 기능: ${featuresKorean}\n\n■ 고객 작성 웹사이트 설명:\n${answers.desc}`
             };
 
             emailjs.send("service_n6tlrdr", "template_exzn08m", templateParams)
@@ -1040,7 +1244,6 @@
                 });
         }
 
-        // GENERATING THE DETAILED PROPOSAL VISUAL REPORT
         function generateProposalReport() {
             const personaName = answers.persona === 'company' ? '기업/스타트업 비즈니스' : '프리랜서 및 퍼스널 브랜딩';
             
@@ -1159,7 +1362,6 @@
                     break;
             }
 
-            // Tech Stacks Recommend list
             let techStack = [
                 { name: 'React / Next.js', icon: 'fa-brands fa-react', desc: '강력한 컴포넌트 단위 재사용성 및 최적화된 화면 로딩 스피드 보장' },
                 { name: 'Tailwind CSS', icon: 'fa-brands fa-css3-alt', desc: '모바일/태블릿 반응형 레이아웃 조립에 최적화된 프레임워크' },
@@ -1172,12 +1374,11 @@
                 newsletter: { title: '뉴스레터 구독 이메일 수집기', icon: 'fa-solid fa-envelope-open-text', desc: '클라이언트 마케팅 타겟 형성을 위한 자동화 구독 폼 스택.' }
             };
 
-            // Formatting budget KRW
             const formattedBudget = Number(answers.budget).toLocaleString() + " 원";
 
-            // Injecting Core Info Data
             document.getElementById('propTitle').innerText = `${answers.webName} - ${formatKorean} 기획안`;
             document.getElementById('infoWebName').innerText = answers.webName;
+            document.getElementById('infoRepresentative').innerText = answers.representative;
             document.getElementById('infoPhone').innerText = answers.phone;
             document.getElementById('infoBudget').innerText = formattedBudget;
             document.getElementById('propDescription').innerText = answers.desc;
@@ -1188,7 +1389,6 @@
                 최종 분위기는 <strong>${styleKorean}</strong> 테마로 설계되어 소비자가 느끼는 신뢰도를 상승시키고, 대표 웹 서체로 <strong>${fonts}</strong> 군을 결합하여 정보성을 강조할 것입니다.
             `;
 
-            // Inject Layout Card Items
             const layoutContainer = document.getElementById('layoutContainer');
             layoutContainer.innerHTML = '';
             defaultLayout.forEach((layout, index) => {
@@ -1201,7 +1401,6 @@
                 `;
             });
 
-            // Inject Module Items
             const modulesContainer = document.getElementById('modulesContainer');
             modulesContainer.innerHTML = '';
             answers.features.forEach(featKey => {
@@ -1221,7 +1420,6 @@
                 }
             });
 
-            // Inject Tech Stack Items
             const techContainer = document.getElementById('techStackContainer');
             techContainer.innerHTML = '';
             techStack.forEach(tech => {
@@ -1238,30 +1436,27 @@
                 `;
             });
 
-            // Inject Custom Colors Theme
             document.getElementById('paletteCircle1').style.backgroundColor = colors[0];
             document.getElementById('paletteCircle2').style.backgroundColor = colors[1];
             document.getElementById('paletteCircle3').style.backgroundColor = colors[2];
             document.getElementById('paletteName').innerText = paletteName;
 
-            // Reveal Proposal View with Scroll action
             proposalSection.classList.remove('hidden');
             proposalSection.scrollIntoView({ behavior: 'smooth' });
 
             showToast("기획안 작성이 완료되었으며, jtiooiu1211@naver.com 으로 즉시 안전 발송되었습니다!");
         }
 
-        // TRIGGER PDF DOWNLOAD (VIA WINDOW PRINT MODIFIER)
         function triggerPdfDownload() {
             window.print();
         }
 
-        // TEXT SUMMARY COPY ENGINE
         function copyProposalText() {
             const title = document.getElementById('propTitle').innerText;
             const summary = document.getElementById('propSummary').innerText;
             const description = document.getElementById('propDescription').innerText;
             const webName = document.getElementById('infoWebName').innerText;
+            const representative = document.getElementById('infoRepresentative').innerText;
             const phone = document.getElementById('infoPhone').innerText;
             const budget = document.getElementById('infoBudget').innerText;
             const palette = document.getElementById('paletteName').innerText;
@@ -1269,6 +1464,7 @@
             const content = `[NP-MAKE WED - 맞춤 기획 리포트 매니페스토]\n\n` +
                             `■ 기획 제목: ${title}\n` +
                             `■ 상호명: ${webName}\n` +
+                            `■ 대표자명: ${representative}\n` +
                             `■ 연락처: ${phone}\n` +
                             `■ 책정 예산 범위: ${budget}\n\n` +
                             `■ 웹사이트 상세 설명:\n${description}\n\n` +
@@ -1296,7 +1492,6 @@
             document.body.removeChild(textarea);
         }
 
-        // TOAST ENGINE (Substitute for alert)
         function showToast(msg) {
             const toast = document.getElementById('toast');
             document.getElementById('toastMessage').innerText = msg;
