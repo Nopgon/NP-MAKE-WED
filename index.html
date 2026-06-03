@@ -383,7 +383,7 @@
                             <label class="relative flex flex-col p-6 rounded-xl border border-slate-800 bg-slate-950/40 cursor-pointer hover:border-brand-500/60 transition-all group">
                                 <input type="radio" name="persona" value="company" class="sr-only" onchange="validateStep1()">
                                 <div class="text-brand-400 text-3xl mb-3 group-hover:scale-105 transition-transform"><i class="fa-solid fa-building-user"></i></div>
-                                <span class="text-sm sm:text-base font-bold text-white mb-1">회사 또는 브랜드 스타트업</span>
+                                <span class="text-sm sm:text-base font-bold text-white mb-1">회사 또는 brand 스타트업</span>
                                 <span class="text-xs text-slate-400 leading-relaxed">비즈니스 신뢰도 상승, 구조적 기업 소개서, 기술 브랜딩 위주</span>
                             </label>
 
@@ -741,7 +741,6 @@
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Environment properties
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'np-make-wed-app';
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
             apiKey: "mock-api-key",
@@ -752,15 +751,27 @@
             appId: "mock-app-id"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-
+        let app, db, auth;
         let userId = null;
-        let myProposalsList = [];
+        let isFirebaseAvailable = false;
+        let myProposalsList = []; // In-memory fallback list to ensure history works 100% of the time
 
-        // Initialize Security authentication first
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            isFirebaseAvailable = (firebaseConfig.apiKey !== "mock-api-key");
+        } catch (e) {
+            console.warn("Firebase initialize ignored (using mock mode):", e);
+        }
+
         async function runAuthenticationFlow() {
+            if (!isFirebaseAvailable) {
+                // If on sandbox or local, initialize random mock user to bypass Firestore Auth
+                userId = "mock-user-" + Math.random().toString(36).substring(2, 10);
+                renderHistoryBoard(); // render empty board at start
+                return;
+            }
             try {
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                     await signInWithCustomToken(auth, __initial_auth_token);
@@ -769,22 +780,26 @@
                 }
             } catch (err) {
                 console.error("Firebase auth flow error:", err);
+                userId = "mock-user-fallback";
+                renderHistoryBoard();
             }
         }
 
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                userId = user.uid;
-                subscribeToProposals();
-            }
-        });
+        if (isFirebaseAvailable) {
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    userId = user.uid;
+                    subscribeToProposals();
+                } else {
+                    runAuthenticationFlow();
+                }
+            });
+        } else {
+            runAuthenticationFlow();
+        }
 
-        runAuthenticationFlow();
-
-        // Load History real-time securely
         function subscribeToProposals() {
-            if (!userId) return;
-            // RULE 1 - Strict Path used
+            if (!userId || !isFirebaseAvailable) return;
             const proposalsCol = collection(db, 'artifacts', appId, 'users', userId, 'proposals');
             
             onSnapshot(proposalsCol, (snapshot) => {
@@ -793,16 +808,13 @@
                     myProposalsList.push({ id: doc.id, ...doc.data() });
                 });
                 
-                // Sort by date inside memory to comply with Rule 2 (No Complex queries)
                 myProposalsList.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-                
                 renderHistoryBoard();
             }, (error) => {
                 console.error("Firestore loading failure:", error);
             });
         }
 
-        // Render submitted elements list
         function renderHistoryBoard() {
             const container = document.getElementById('historyListContainer');
             const historySection = document.getElementById('historySection');
@@ -818,19 +830,19 @@
             myProposalsList.forEach(item => {
                 let formatTxt = '';
                 switch(item.format) {
-                    case 'landing': formatTxt = '랜딩 페이지'; break;
-                    case 'corporate': formatTxt = '기업 소개 사이트'; break;
+                    case 'landing': formatTxt = '원페이지 랜딩'; break;
+                    case 'corporate': formatTxt = '기업 소개'; break;
                     case 'ai-multipage': formatTxt = 'AI 다중페이지'; break;
                     case 'portfolio': formatTxt = '포트폴리오'; break;
                     case 'community': formatTxt = '커뮤니티'; break;
-                    case 'blog': formatTxt = '블로그'; break;
+                    case 'blog': formatTxt = '콘텐츠 블로그'; break;
                 }
                 
                 const card = document.createElement('div');
-                card.className = "p-4 rounded-2xl bg-slate-950/80 border border-slate-800/80 hover:border-brand-500/50 cursor-pointer transition-all hover:scale-[1.02]";
+                card.className = "p-4 rounded-2xl bg-slate-950/80 border border-slate-800/80 hover:border-brand-500/50 cursor-pointer transition-all hover:scale-[1.02] animate-fade-in";
                 card.innerHTML = `
                     <div class="flex items-center justify-between mb-2">
-                        <span class="text-[10px] font-bold text-brand-400 font-mono">SUBMITTED RECORD</span>
+                        <span class="text-[10px] font-bold text-brand-400 font-mono">제출 이력</span>
                         <span class="text-[9px] text-slate-500 font-mono">${new Date(item.createdAt).toLocaleDateString()}</span>
                     </div>
                     <h4 class="text-sm font-extrabold text-white truncate">${item.webName}</h4>
@@ -848,7 +860,6 @@
             });
         }
 
-        // Restore chosen past proposal
         function restoreProposalData(data) {
             answers.persona = data.persona;
             answers.format = data.format;
@@ -864,30 +875,37 @@
             generateProposalReport();
         }
 
-        // Save submitted proposal to database
         async function saveProposalToDatabase() {
-            if (!userId) return;
-            try {
-                const proposalsCol = collection(db, 'artifacts', appId, 'users', userId, 'proposals');
-                await addDoc(proposalsCol, {
-                    persona: answers.persona,
-                    format: answers.format,
-                    usage: answers.usage,
-                    style: answers.style,
-                    features: answers.features,
-                    webName: answers.webName,
-                    representative: answers.representative,
-                    phone: answers.phone,
-                    budget: answers.budget,
-                    desc: answers.desc,
-                    createdAt: new Date().toISOString()
-                });
-            } catch (err) {
-                console.error("Failed to commit submission to Firestore:", err);
+            const proposalPayload = {
+                persona: answers.persona,
+                format: answers.format,
+                usage: answers.usage,
+                style: answers.style,
+                features: answers.features,
+                webName: answers.webName,
+                representative: answers.representative,
+                phone: answers.phone,
+                budget: answers.budget,
+                desc: answers.desc,
+                createdAt: new Date().toISOString()
+            };
+
+            // Always write to in-memory fallback to ensure it works on local preview
+            myProposalsList.unshift(proposalPayload);
+            renderHistoryBoard();
+
+            // Then try Firebase write if active
+            if (isFirebaseAvailable && userId) {
+                try {
+                    const proposalsCol = collection(db, 'artifacts', appId, 'users', userId, 'proposals');
+                    await addDoc(proposalsCol, proposalPayload);
+                } catch (err) {
+                    console.error("Failed to commit submission to Firestore:", err);
+                }
             }
         }
 
-        // Expose functions to global scope
+        // Expose to window global scope
         window.saveProposalToDatabase = saveProposalToDatabase;
     </script>
 
@@ -1165,7 +1183,7 @@
                     clearInterval(progressInterval);
                     setTimeout(async () => {
                         surveyLoader.classList.add('hidden');
-                        // Commit to Firestore History
+                        // Commit to storage history
                         if (window.saveProposalToDatabase) {
                             await window.saveProposalToDatabase();
                         }
